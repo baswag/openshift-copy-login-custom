@@ -1,0 +1,12 @@
+# Cluster-scoped resource. Installing this chart requires cluster-admin.
+# Adds an entry to the web console's user-menu dropdown (top right), alongside
+# the built-in "Copy login command" - that built-in item is hardcoded in the
+# console frontend and can't be hidden/replaced, so this is additive.
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: {{ .Values.oauthClientId }}
+spec:
+  location: UserMenu
+  text: {{ .Values.consoleLink.text }}
+  href: {{ include "token-display.url" . | quote }}

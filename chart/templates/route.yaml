@@ -1,0 +1,23 @@
+# Lives in the openshift-console namespace (see _helpers.tpl's namespaceCheck),
+# alongside the console's own "console" Route, so it can add a path on that
+# Route's host without hitting OpenShift's cross-namespace host-claim
+# restriction.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: token-display
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: {{ required "route.host must be set (see values.yaml)" .Values.route.host }}
+  path: {{ .Values.route.path }}
+  to:
+    kind: Service
+    name: token-display
+  port:
+    targetPort: http
+  tls:
+    # edge is fine sharing a host with the console's reencrypt route - both
+    # terminate TLS at the router using the same default wildcard cert; only
+    # passthrough is incompatible with path-based routing.
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

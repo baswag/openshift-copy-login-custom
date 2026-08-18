@@ -1,0 +1,31 @@
+# The load-balanced API server URL to show in the generated oc login / curl
+# commands. Required - has no sensible default.
+customApiUrl: ""
+
+# The cluster's OAuth server route (NOT the API server). Required - has no
+# sensible default. Unlike customApiUrl, this one's already reachable from
+# users' browsers today (it's what the built-in "Copy login command" flow
+# uses too) and needs no discovery call, so the page navigates straight to
+# "<oauthServerUrl>/oauth/authorize" rather than fetching
+# /.well-known/oauth-authorization-server from customApiUrl - avoids depending
+# on the API server sending CORS headers for that fetch, which it generally
+# doesn't.
+# Find it with: oc get route oauth-openshift -n openshift-authentication -o jsonpath='{.spec.host}'
+oauthServerUrl: ""
+
+# Must be a valid DNS label; becomes both the ConfigMap/Deployment/Service name
+# prefix and the OAuthClient's metadata.name.
+oauthClientId: custom-api-url-token-display
+
+route:
+  # The web console's own Route hostname. Required - has no sensible default.
+  # Find it with: oc get route console -n openshift-console -o jsonpath='{.spec.host}'
+  host: ""
+  # Path this page is served under, alongside the console's own "/" route on
+  # the same host. Change only if this collides with an existing console path.
+  path: /token-display
+
+image:
+  repository: registry.access.redhat.com/hi/nginx
+  tag: "1.30.4"
+  pullPolicy: IfNotPresent

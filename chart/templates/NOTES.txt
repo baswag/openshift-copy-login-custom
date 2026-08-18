@@ -1,0 +1,11 @@
+Custom API URL token display page installed.
+
+URL:      {{ include "token-display.url" . }}
+Namespace: {{ .Release.Namespace }}
+
+Check rollout status:
+  oc rollout status deployment/token-display -n {{ .Release.Namespace }}
+
+Then open the URL above in a browser to verify the OAuth flow end-to-end, and
+check the web console's user menu (top right) for the new "Copy login command
+(load-balanced URL)" entry.

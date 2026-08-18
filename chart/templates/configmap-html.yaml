@@ -1,0 +1,12 @@
+{{ include "token-display.namespaceCheck" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: token-display-html
+  namespace: {{ .Release.Namespace }}
+data:
+  # Rendered from files/index.html.tpl - edit that file, not this one, then
+  # `helm upgrade`. tpl() runs it as a Go template against the chart's own
+  # values, substituting customApiUrl/oauthClientId at render time.
+  index.html: |
+{{ tpl (.Files.Get "files/index.html.tpl") . | nindent 4 }}

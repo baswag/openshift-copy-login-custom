@@ -1,0 +1,9 @@
+# Cluster-scoped resource. Installing this chart requires cluster-admin.
+apiVersion: oauth.openshift.io/v1
+kind: OAuthClient
+metadata:
+  name: {{ .Values.oauthClientId }}
+respondWithChallenges: false
+grantMethod: auto
+redirectURIs:
+  - {{ include "token-display.url" . }}

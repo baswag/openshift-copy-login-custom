@@ -1,0 +1,55 @@
+{{ include "token-display.namespaceCheck" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: token-display
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: token-display
+  template:
+    metadata:
+      labels:
+        app: token-display
+      annotations:
+        # Forces a rollout whenever the rendered page content changes (e.g.
+        # customApiUrl/oauthClientId edits) - a plain label can't hold a full
+        # sha256 digest (64 chars > Kubernetes' 63-char label-value limit),
+        # but an annotation has no such limit and the Deployment controller
+        # diffs pod template annotations just the same as labels.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-html.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            # The ConfigMap already holds the fully-rendered page (Helm baked
+            # customApiUrl/oauthClientId in at template time) - just mount its
+            # index.html key directly at the path the Route forwards requests
+            # to. No envsubst/entrypoint script needed or possible: this image
+            # has no shell.
+            - name: html
+              mountPath: /usr/share/nginx/html{{ .Values.route.path }}/index.html
+              subPath: index.html
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: "{{ .Values.route.path }}/"
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: "{{ .Values.route.path }}/"
+              port: 8080
+      volumes:
+        - name: html
+          configMap:
+            name: token-display-html

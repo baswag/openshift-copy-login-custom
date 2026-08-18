@@ -1,0 +1,10 @@
+apiVersion: v2
+name: token-display
+description: >-
+  Custom API URL token display page for OpenShift - runs the same OAuth
+  implicit-grant flow as the built-in "Copy login command" page, but shows a
+  configurable, load-balanced API server URL in the generated oc login/curl
+  commands.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
